@@ -2,6 +2,7 @@
 /**Autocargador de clases */
 require_once("../clases/db.php");
 require_once ("../clases/usuario.php");
+require_once ("../clases/donante.php");
 
 
 header('Access-Control-Allow-Origin: *');

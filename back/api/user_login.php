@@ -23,9 +23,7 @@ try {
 
 
         $user_data = $usuario->login_usuario($username, $password);
-        $user_data = json_decode($user_data, true); // Decodificar la respuesta JSON como array asociativo
-        //ejemplo user_data = {"user_nombres":"Administrador","user_nick":"admin","user_rol":1}
-        //ejemplo user_data en caso de error  = {"error":"Usuario no encontrado"}
+        $user_data = json_decode($user_data, true); 
 
         $resultado = array();
 
@@ -42,11 +40,9 @@ try {
             }
              
         }else{
-            //http_response_code(400); // Bad Request
             $resultado = $user_data;
         }
 
-        //echo json_encode($resultado);
         echo json_encode(array("token" => base64_encode(json_encode($resultado))));
 
         exit();

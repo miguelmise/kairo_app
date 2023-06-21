@@ -5,7 +5,7 @@ class Donante extends Conectar{
     public function listar_donantes(){
         try {
             $conectar = parent::db();
-            $query = "SELECT * FROM donante WHERE donante_estado = 1";
+            $query = "SELECT * FROM donante";
             $query = $conectar->prepare($query);
             $query->execute();
             $result = $query->fetchAll(PDO::FETCH_ASSOC);
@@ -91,8 +91,8 @@ class Donante extends Conectar{
 
             // Validación de datos
             if (empty($data['donante_nombre']) || empty($data['donante_tipo']) || empty($data['donante_id'])
-                || empty($data['donante_descripcion']) || empty($data['donante_estado'])) {
-                return json_encode(["error" => "Todos los campos son obligatorios", "recibido" => $data]);
+                || empty($data['donante_estado'])) {
+                return json_encode(["mensaje" => "Todos los campos son obligatorios", "recibido" => $data]);
             }
 
             $conectar = parent::db();

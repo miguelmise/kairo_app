@@ -76,7 +76,8 @@ class Usuario extends Conectar{
             $query = "UPDATE usuario 
                     SET user_nombres = '{$data['user_nombres']}', 
                     user_correo = '{$data['user_correo']}', 
-                    user_rol = {$data['user_rol']}, 
+                    user_rol = {$data['user_rol']},
+                    user_update = NOW(), 
                     user_estado = {$data['user_estado']} {$query_clave} 
                     WHERE user_id = {$data['user_id']}";
             $query = $conectar->prepare($query);

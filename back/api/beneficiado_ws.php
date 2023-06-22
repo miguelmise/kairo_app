@@ -11,11 +11,11 @@ try {
     if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
         if (empty($requestData)) {
-            // No se recibieron parámetros, llamar a listar_donantes
+            // No se recibieron parámetros
             $beneficiados_list = $beneficiado->listar_beneficiados();
             echo $beneficiados_list;
         }else {
-            // Se recibieron parámetros, llamar a buscar_donante
+            // Se recibieron parámetros
             $beneficiado_data = $beneficiado->buscar_beneficiado($requestData);
             echo $beneficiado_data;
         }

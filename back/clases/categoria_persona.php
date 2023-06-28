@@ -138,9 +138,38 @@ class Categoria_Persona extends Conectar{
         }
     }
 
-    public function actualizar_categ_persona_beneficiario($data){
-
+    public function actualizar_categ_persona_beneficiario($data){//revisar
+        try {
+            if (empty($data['cat_persona_beneficiado_id']) || empty($data['cat_persona_beneficiado_cantidad'])) {
+                throw new Exception("Faltan campos obligatorios.");
+            }
+    
+            $conectar = parent::db();
+            $conectar->beginTransaction();
+    
+            // Actualizar la categoría de persona beneficiado
+            $queryActualizar = "UPDATE cat_persona_beneficiado 
+                SET cat_persona_beneficiado_cantidad = {$data['cat_persona_beneficiado_cantidad']}
+                WHERE cat_persona_beneficiado_id = {$data['cat_persona_beneficiado_id']}";
+            $queryActualizar = $conectar->prepare($queryActualizar);
+            $queryActualizar->execute();
+    
+            if ($queryActualizar->rowCount() > 0) {
+                $conectar->commit();
+                $result = ["mensaje" => "Categoría Persona actualizada exitosamente."];
+            } else {
+                $conectar->rollback();
+                $result = ["mensaje" => "No se actualizó la Categoría Persona."];
+            }
+    
+            return json_encode($result);
+    
+        } catch(Exception $e){
+            $conectar->rollback();
+            return json_encode(["error" => $e->getMessage()]);
+        }
     }
+    
 
     public function actualizar_categoria_persona($data){
         try {

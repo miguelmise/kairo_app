@@ -10,28 +10,29 @@ try {
 
     if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
-        
-            $categorias_list = $categoria->listar_categoria_persona();
-            echo $categorias_list;
-        
+        if (!empty($_REQUEST['beneficiado_id']) && isset($_REQUEST['beneficiado_id'])) {
+            $categorias_list_beneficiado = $categoria->listar_cat_per_beneficiario(array("beneficiado_id"=>$_REQUEST['beneficiado_id']));
+            echo $categorias_list_beneficiado;
+        }else{
+            http_response_code(404);
+            echo json_encode(["Error"=> "No se recibio parámetros."]);die();
+        }
         
         
     }elseif($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-        if(isset($requestData['beneficiado_id'])){
-            $categorias_creado = $categoria->crear_categoria_persona($requestData);
+        if (isset($_REQUEST['beneficiado_id']) && isset($_REQUEST['categoria_persona_id'])) {
+            $categorias_creado = $categoria->crear_categ_persona_beneficiario(array("beneficiado_id"=>$_REQUEST['beneficiado_id'],"categoria_persona_id"=>$_REQUEST['categoria_persona_id']));
             echo $categorias_creado;
-        }else{
-            http_response_code(404);
-            echo json_encode(["Error"=> "No se recibio parámetros."]);
         }
         
 
     }elseif($_SERVER['REQUEST_METHOD'] == 'PUT') {
 
-        $categoria_update = $categoria->actualizar_categoria_persona($requestData);
+        
+    }elseif($_SERVER['REQUEST_METHOD'] == 'DELETE') {
 
-        echo $categoria_update;
+        
     }else{
         http_response_code(404);
         echo json_encode(["Error"=> "Solicitud Incorrecta o No se encontró."]);

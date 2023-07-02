@@ -27,10 +27,10 @@ class Categoria_Persona extends Conectar{
                 throw new Exception("El campo beneficiado_id no está presente o está vacío.");
             }
 
-            $query = "SELECT * 
-            FROM cat_persona_beneficiado b
-            LEFT JOIN categoria_persona p ON b.categoria_persona_id = p.categoria_persona_id
-            WHERE b.beneficiado_id = {$data['beneficiado_id']}";
+            
+            $query="SELECT *
+            FROM categoria_persona p
+            LEFT JOIN cat_persona_beneficiado b ON b.categoria_persona_id = p.categoria_persona_id AND b.beneficiado_id = {$data['beneficiado_id']}";
             $query = $conectar->prepare($query);
             $query->execute();
             $result = $query->fetchAll(PDO::FETCH_ASSOC);

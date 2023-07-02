@@ -76,8 +76,12 @@ class Beneficiado extends Conectar{
             ]);
     
             if ($queryInsertar->rowCount() > 0) {
+                $beneficiado_id = $conectar->lastInsertId();
                 $conectar->commit();
-                $result = ["mensaje" => "Beneficiado insertado exitosamente."];
+                $result = [
+                    "mensaje" => "Beneficiado insertado exitosamente.",
+                    "beneficiado_id" => $beneficiado_id
+                ];
             } else {
                 $conectar->rollback();
                 $result = ["mensaje" => "No se insertó el Beneficiado."];
@@ -97,7 +101,7 @@ class Beneficiado extends Conectar{
             // Validación de datos
             if (empty($data['beneficiado_nombre']) || empty($data['beneficiado_actividad']) || empty($data['beneficiado_id'])
             || empty($data['beneficiado_periodo']) || empty($data['beneficiado_dia_entrega']) 
-            || empty($data['beneficiado_estado'])) {
+            || empty($data['beneficiado_estado']) || !isset($data['beneficiado_id'])) {
                 return json_encode(["mensaje" => "Todos los campos son obligatorios", "recibido" => $data]);
             }
             $telefono = $data['beneficiado_telefono'] ?? '';
@@ -108,7 +112,6 @@ class Beneficiado extends Conectar{
                         beneficiado_actividad = '{$data['beneficiado_actividad']}',
                         beneficiado_periodo = '{$data['beneficiado_periodo']}',
                         beneficiado_dia_entrega = '{$data['beneficiado_dia_entrega']}',
-                        beneficiado_ultima_entrega = '{$data['beneficiado_ultima_entrega']}',
                         beneficiado_telefono = '{$telefono}',
                         beneficiado_representante = '{$representante}',
                         beneficiado_update = NOW(),

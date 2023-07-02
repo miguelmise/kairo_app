@@ -4,10 +4,10 @@ class Conectar {
     protected $conexion;
     
     protected function db() {
-        $password = "admin";
-        $usuario = "admin";
+        $password = "root";
+        $usuario = "root";
         $nombreBaseDeDatos = "kairo";
-        $rutaServidor = "192.168.227.123";
+        $rutaServidor = "localhost";
         $puerto = "3306";
 
         try {

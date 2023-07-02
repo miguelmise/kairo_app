@@ -21,8 +21,10 @@ try {
         
     }elseif($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-        if (isset($_REQUEST['beneficiado_id']) && isset($_REQUEST['categoria_persona_id'])) {
-            $categorias_creado = $categoria->crear_categ_persona_beneficiario(array("beneficiado_id"=>$_REQUEST['beneficiado_id'],"categoria_persona_id"=>$_REQUEST['categoria_persona_id']));
+        if (isset($_REQUEST['beneficiado_id']) && isset($_REQUEST['categoria_persona_id']) && isset($_REQUEST['cat_persona_beneficiado_cantidad'])) {
+            $categorias_creado = $categoria->crear_categ_persona_beneficiario(array("beneficiado_id"=>$_REQUEST['beneficiado_id'],
+                                                                                    "categoria_persona_id"=>$_REQUEST['categoria_persona_id'],
+                                                                                    "cat_persona_beneficiado_cantidad"=>$_REQUEST['cat_persona_beneficiado_cantidad']));
             echo $categorias_creado;
         }
         

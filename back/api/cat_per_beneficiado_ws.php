@@ -43,12 +43,7 @@ try {
             die();
         }*/
 
-    }elseif($_SERVER['REQUEST_METHOD'] == 'PUT') {
-        echo json_encode(["Prueba" => "put."]);
-        die();
-    } elseif ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
-        // Código para manejar solicitudes DELETE
-    } else {
+    }else {
         http_response_code(404);
         echo json_encode(["Error" => "Solicitud incorrecta o no encontrada."]);
     }

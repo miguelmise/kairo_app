@@ -28,7 +28,7 @@ class Categoria_Persona extends Conectar{
             }
 
             
-            $query="SELECT *
+            $query="SELECT p.*,b.cat_persona_beneficiado_id,b.beneficiado_id,b.cat_persona_beneficiado_cantidad 
             FROM categoria_persona p
             LEFT JOIN cat_persona_beneficiado b ON b.categoria_persona_id = p.categoria_persona_id AND b.beneficiado_id = {$data['beneficiado_id']}";
             $query = $conectar->prepare($query);
@@ -54,19 +54,7 @@ class Categoria_Persona extends Conectar{
             $conectar->beginTransaction();
             $timestamp = time();
 
-            // Verificar si  ya existe
-            $queryVerificar = "SELECT COUNT(*) FROM cat_persona_beneficiado 
-            WHERE beneficiado_id = {$data['beneficiado_id']} AND categoria_persona_id = {$data['categoria_persona_id']}";
-            $queryVerificar = $conectar->prepare($queryVerificar);
-            $queryVerificar->execute();
-            $categoriaExistente = $queryVerificar->fetchColumn();
-    
-            if ($categoriaExistente > 0) {
-                $conectar->rollback();
-                return json_encode(["error" => "Ya existe una categoria de persona con el mismo nombre"]);
-            }
-
-            // Insertar el donante
+            // Insertar
             $queryInsertar = "INSERT INTO cat_persona_beneficiado (beneficiado_id, 
             categoria_persona_id, cat_persona_beneficiado_cantidad)
                 VALUES ({$data['beneficiado_id']}, {$data['categoria_persona_id']}, {$data['cat_persona_beneficiado_cantidad']})";
@@ -84,7 +72,7 @@ class Categoria_Persona extends Conectar{
             return json_encode($result);
 
         } catch(Exception $e){
-            $conectar->rollback();
+            //$conectar->rollback();
             return json_encode(["error" => $e->getMessage()]);
         }
     }

@@ -1,8 +1,8 @@
 <?php
 
-error_reporting(E_ERROR);//mostrara solo los errores no los warnings
+error_reporting(E_ERROR);
 
-require_once("autoload.php");//cargador de todas las clases
+require_once("autoload.php");
 
 try {
     $beneficiado = new Beneficiado();

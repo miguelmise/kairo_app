@@ -11,7 +11,7 @@ header('content-type: application/json; charset=utf-8');
 
 try {
     $categoria = new Categoria_Persona();
-    //$requestData = json_decode(file_get_contents('php://input'), true);
+    $requestData = json_decode(file_get_contents('php://input'), true);
 
     if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 

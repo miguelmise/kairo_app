@@ -163,10 +163,12 @@ class Categoria_Persona extends Conectar{
         try {
 
             // Validación de datos
-            if (empty($data['categoria_persona_id']) || empty($data['categoria_persona_nombre'])
-            || empty($data['categoria_persona_descripcion']) || empty($data['categoria_persona_estado']) ) {
-                return json_encode(["mensaje" => "Todos los campos son obligatorios", "recibido" => $data]);
+            $requiredFields = ['categoria_persona_id', 'categoria_persona_nombre', 'categoria_persona_descripcion', 'categoria_persona_estado'];
+            $missingFields = array_diff($requiredFields, array_keys($data));
+            if (!empty($missingFields)) {
+                return json_encode(["mensaje" => "Todos los campos son obligatorios, faltan:".json_encode($missingFields)]);
             }
+
             $descripcion = $data['categoria_persona_descripcion'] ?? '';
             $conectar = parent::db();
             $query = "UPDATE categoria_persona 

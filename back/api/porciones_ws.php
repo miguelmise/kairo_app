@@ -19,6 +19,17 @@ try {
         }
     }
 
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+        if (!isset($_REQUEST['id_persona']) || !isset($_REQUEST['id_producto']) || !isset($_REQUEST['cantidad'])) {
+            http_response_code(402);
+            echo json_encode(array('error' => 'No se recibio parámetros.'));
+            exit();
+        }
+        $porcion_nuevo = $porcion->crearNueva($_REQUEST['id_persona'],$_REQUEST['id_producto'],$_REQUEST['cantidad']);
+        echo $porcion_nuevo;
+    }
+
     if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
         
         if (!isset($_REQUEST['id']) || !isset($_REQUEST['cantidad'])) {

@@ -7,6 +7,7 @@ require_once ("../clases/beneficiado.php");
 require_once ("../clases/producto.php");
 require_once ("../clases/categoria_persona.php");
 require_once ("../clases/categoria_producto.php");
+require_once ("../clases/porciones.php");
 
 
 header('Access-Control-Allow-Origin: *');

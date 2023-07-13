@@ -8,6 +8,7 @@ require_once ("../clases/producto.php");
 require_once ("../clases/categoria_persona.php");
 require_once ("../clases/categoria_producto.php");
 require_once ("../clases/porciones.php");
+require_once ("../clases/inventario.php");
 
 
 header('Access-Control-Allow-Origin: *');

@@ -5,7 +5,8 @@ class Producto extends Conectar{
     public function listar_productos(){
         try {
             $conectar = parent::db();
-            $query = "SELECT * FROM producto;";
+            $query = "SELECT * FROM producto p
+            LEFT JOIN (SELECT inventario_codigo , SUM(inventario_stock) as stock FROM inventario GROUP BY inventario_codigo) i ON p.producto_codigo = i.inventario_codigo;";
             $query = $conectar->prepare($query);
             $query->execute();
             $result = $query->fetchAll(PDO::FETCH_ASSOC);
@@ -32,6 +33,7 @@ class Producto extends Conectar{
             if(!isset($data['producto_medida'])){return json_encode(["mensaje" => "Falta producto_medida"]);}
 
             $conectar = parent::db();
+            $conectar->beginTransaction();
             $query = "UPDATE producto 
                         SET producto_codigo = '{$data['producto_codigo']}',
                         producto_estado = '{$data['producto_estado']}',
@@ -48,6 +50,15 @@ class Producto extends Conectar{
             $query->execute();
 
             if ($query->rowCount() > 0) {
+
+                $query_inventario = "UPDATE inventario 
+                SET inventario_precio_promedio = {$data['producto_precio']},
+                inventario_costo_total =  {$data['producto_precio']} * inventario_stock 
+                WHERE inventario_codigo = {$data['producto_codigo']}";
+                $query_inventario = $conectar->prepare($query_inventario);
+                $query_inventario->execute();
+
+                $conectar->commit();
                 $result = ["mensaje" => "Producto actualizado exitosamente."];
             } else {
                 $result = ["mensaje" => "No hubo cambios en los datos del Producto."];
@@ -56,6 +67,7 @@ class Producto extends Conectar{
             return json_encode($result);
 
         } catch(Exception $e){
+            $conectar->rollBack();
             return json_encode(["error" => $e->getMessage()]);
         }
     }

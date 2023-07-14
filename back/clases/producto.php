@@ -6,7 +6,8 @@ class Producto extends Conectar{
         try {
             $conectar = parent::db();
             $query = "SELECT * FROM producto p
-            LEFT JOIN (SELECT inventario_codigo , SUM(inventario_stock) as stock FROM inventario GROUP BY inventario_codigo) i ON p.producto_codigo = i.inventario_codigo;";
+            LEFT JOIN (SELECT inventario_codigo , SUM(inventario_stock) as stock FROM inventario GROUP BY inventario_codigo) i ON p.producto_codigo = i.inventario_codigo
+            LEFT JOIN categoria_producto c ON p.producto_categoria_id = c.cat_pro_id";
             $query = $conectar->prepare($query);
             $query->execute();
             $result = $query->fetchAll(PDO::FETCH_ASSOC);

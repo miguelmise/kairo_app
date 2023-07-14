@@ -157,7 +157,6 @@ class Inventario extends Conectar{
                     ]);
 
                     if ($queryInsertar->rowCount() == 0) {
-                        $conectar->rollback();
                         throw new Exception("Error al procesar el producto: " . $producto['Descripción']);
                     }else{
                         $resultados['productos_nuevos']++;
@@ -165,10 +164,13 @@ class Inventario extends Conectar{
                     
                                 
                 }
+
+                $proveedor = $producto['Proveedor'] == "" ? "SIN DATOS" : $producto['Proveedor'];
+
                 //verificar si existe el proveedor
                 $queryVerificar = "SELECT COUNT(*) AS count FROM donante WHERE donante_nombre = :nombre";
                 $queryVerificar = $conectar->prepare($queryVerificar);
-                $queryVerificar->execute([':nombre' => strtoupper($producto['Proveedor'])]);
+                $queryVerificar->execute([':nombre' => strtoupper($proveedor)]);
                 $rowCount = $queryVerificar->fetch(PDO::FETCH_ASSOC)['count'];
         
                 //Sino existe se crea el proveedor
@@ -177,13 +179,12 @@ class Inventario extends Conectar{
                         VALUES (:nombre, :tipo, :descripcion, NOW(), 1)";
                     $queryInsertar = $conectar->prepare($queryInsertar);
                     $queryInsertar->execute([
-                        ':nombre' => strtoupper($producto['Proveedor']),
+                        ':nombre' => strtoupper($proveedor),
                         ':tipo' => "OTRO",
                         ':descripcion' => ""
                     ]);
             
                     if ($queryInsertar->rowCount() == 0) {
-                        $conectar->rollback();
                         throw new Exception("Error al procesar el producto: " . $producto['Descripción']);
                     }else{
                         $resultados['proveedores_nuevos']++;

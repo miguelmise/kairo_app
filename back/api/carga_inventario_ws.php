@@ -38,13 +38,15 @@ try {
             foreach ($headers as $index => $header) {
                 $newItem[$header] = $item[$index];
             }
+
             $dataExcel[] = $newItem;
         }
 
         array_shift($dataExcel); // Eliminar el primer elemento del array
 
-        $jsonResult = json_encode($dataExcel);
-        echo $jsonResult;
+        $carga_inventario = $inventario->cargar_inventario($dataExcel);
+
+        echo $carga_inventario;
     }
 
 } catch (Exception $e) {

@@ -65,7 +65,7 @@ class Donante extends Conectar{
                 VALUES (:nombre, :tipo, :descripcion, NOW(), 1)";
             $queryInsertar = $conectar->prepare($queryInsertar);
             $queryInsertar->execute([
-                ':nombre' => $data['donante_nombre'],
+                ':nombre' => strtoupper($data['donante_nombre']),
                 ':tipo' => $data['donante_tipo'],
                 ':descripcion' => $data['donante_descripcion']
             ]);

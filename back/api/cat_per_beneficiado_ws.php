@@ -22,31 +22,33 @@ try {
             echo json_encode(["Error" => "No se recibieron parámetros."]);
             die();
         }
-    }elseif($_SERVER['REQUEST_METHOD'] == 'POST') {
+    }
+    
+    if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-        if (!empty($_REQUEST['beneficiado_id']) && isset($_REQUEST['beneficiado_id'])){
-            echo json_encode(["Bien" => "Bien."]);
-            die();
-
-        }else{
-            http_response_code(404);
-            echo json_encode(["Error" => "No se recibieron parámetros."]);
-            die();
+        if (empty($requestData)) {
+            http_response_code(402);
+            echo json_encode(array('error' => 'No se recibio parámetros para crear.'));
+            exit();
         }
 
-        /*if (!empty($requestData)) {
-            $categorias_creado = $categoria->crear_categ_persona_beneficiario($requestData);
-            echo $categorias_creado;
-        }else{
-            http_response_code(404);
-            echo json_encode(["Error" => "No se recibieron parámetros."]);
-            die();
-        }*/
-
-    }else {
-        http_response_code(404);
-        echo json_encode(["Error" => "Solicitud incorrecta o no encontrada."]);
+        $categoria_creada = $categoria->crear_categ_persona_beneficiario($requestData);
+        echo $categoria_creada;
     }
+
+    if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
+        
+        if (empty($requestData)) {
+            http_response_code(402);
+            echo json_encode(array('error' => 'No se recibio parámetros para crear.'));
+            exit();
+        }
+
+        $categoria_actualizado = $categoria->actualizar_categ_persona_beneficiario($requestData);
+        echo $categoria_actualizado;
+        
+    }
+
 } catch (Exception $e) {
     http_response_code(500); // Internal Server Error
     $response = array('error' => 'Se produjo un error en el servidor: ' . $e->getMessage());

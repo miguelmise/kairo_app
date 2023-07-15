@@ -21,22 +21,30 @@ try {
         }
     }
     
-    /*if($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+        if (empty($requestData)) {
+            http_response_code(402);
+            echo json_encode(array('error' => 'No se recibio parámetros.'));
+            exit();
+        }
 
         $beneficiado_creado = $beneficiado->crear_beneficiado($requestData);
-
         echo $beneficiado_creado;
+
     }
     
     if($_SERVER['REQUEST_METHOD'] == 'PUT') {
 
-        $beneficiado_update = $beneficiado->actualizar_beneficiado($requestData);
+        if (empty($requestData)) {
+            http_response_code(402);
+            echo json_encode(array('error' => 'No se recibio parámetros.'));
+            exit();
+        }
 
+        $beneficiado_update = $beneficiado->actualizar_beneficiado($requestData);
         echo $beneficiado_update;
-    }else{
-        http_response_code(404);
-        echo json_encode(["Error"=> "Solicitud Incorrecta o No se encontró."]);
-    }*/
+    }
 
 } catch (Exception $e) {
     http_response_code(500); // Internal Server Error

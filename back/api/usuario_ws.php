@@ -1,6 +1,5 @@
 <?php
 
-error_reporting(E_ERROR);//mostrara solo los errores no los warnings
 
 require_once("autoload.php");//cargador de todas las clases
 

@@ -1,4 +1,9 @@
 <?php
+
+// Habilitar la visualización de errores
+ini_set('display_errors', 1);
+error_reporting(E_ERROR);
+
 /**Autocargador de clases */
 require_once("../clases/db.php");
 require_once ("../clases/usuario.php");
@@ -9,6 +14,7 @@ require_once ("../clases/categoria_persona.php");
 require_once ("../clases/categoria_producto.php");
 require_once ("../clases/porciones.php");
 require_once ("../clases/inventario.php");
+require_once ("../clases/planificador.php");
 
 
 header('Access-Control-Allow-Origin: *');

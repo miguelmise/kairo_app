@@ -1,6 +1,5 @@
 <?php
 
-error_reporting(E_ERROR); // Mostrará solo los errores, no las advertencias
 require_once("autoload.php"); // Cargador de todas las clases
 
 header('Access-Control-Allow-Origin: *');
@@ -46,7 +45,7 @@ try {
 
         $categoria_actualizado = $categoria->actualizar_categ_persona_beneficiario($requestData);
         echo $categoria_actualizado;
-        
+
     }
 
 } catch (Exception $e) {

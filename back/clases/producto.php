@@ -33,6 +33,8 @@ class Producto extends Conectar{
             if(!isset($data['producto_sku'])){return json_encode(["mensaje" => "Falta producto_sku"]);}
             if(!isset($data['producto_medida'])){return json_encode(["mensaje" => "Falta producto_medida"]);}
 
+            $peso_standar = self::convertirAPesoEnGramos($data['producto_peso'],$data['producto_medida']);
+
             $conectar = parent::db();
             $conectar->beginTransaction();
             $query = "UPDATE producto 
@@ -43,6 +45,7 @@ class Producto extends Conectar{
                         producto_precio = {$data['producto_precio']},
                         producto_categoria_id = {$data['producto_categoria_id']},
                         producto_peso = {$data['producto_peso']},
+                        producto_peso_estandar = {$peso_standar},
                         producto_update = NOW(),
                         producto_descripcion = '{$data['producto_descripcion']}'
                         WHERE producto_id = {$data['producto_id']}
@@ -101,9 +104,11 @@ class Producto extends Conectar{
                 $conectar->rollback();
                 $result = ["mensaje" => "Ya existe un producto con el mismo código, descripción o SKU."];
             } else {
+                $peso_standar = self::convertirAPesoEnGramos($data['producto_peso'],$data['producto_medida']);
+                
                 // Insertar el producto
-                $queryInsertar = "INSERT INTO producto (producto_categoria_id, producto_codigo, producto_descripcion, producto_medida, producto_peso, producto_precio, producto_rango_peso, producto_sku, producto_update, producto_estado) 
-                                    VALUES (:producto_categoria_id, :producto_codigo, :producto_descripcion, :producto_medida, :producto_peso, :producto_precio, :producto_rango_peso, :producto_sku, NOW(), 1)";
+                $queryInsertar = "INSERT INTO producto (producto_categoria_id, producto_codigo, producto_descripcion, producto_medida, producto_peso,producto_peso_estandar, producto_precio, producto_sku, producto_update, producto_estado) 
+                                    VALUES (:producto_categoria_id, :producto_codigo, :producto_descripcion, :producto_medida, :producto_peso,:producto_peso_estandar, :producto_precio, :producto_sku, NOW(), 1)";
                 $queryInsertar = $conectar->prepare($queryInsertar);
                 $queryInsertar->execute([
                     ':producto_categoria_id' => $data['producto_categoria_id'],
@@ -111,6 +116,7 @@ class Producto extends Conectar{
                     ':producto_descripcion' => $data['producto_descripcion'],
                     ':producto_medida' => $data['producto_medida'],
                     ':producto_peso' => $data['producto_peso'],
+                    ':producto_peso_estandar' => $peso_standar,
                     ':producto_precio' => $data['producto_precio'],
                     ':producto_sku' => $data['producto_sku']
                 ]);
@@ -129,8 +135,44 @@ class Producto extends Conectar{
 
         } catch(Exception $e){
             $conectar->rollback();
-            return json_encode(["error" => $e->getMessage()]);
+            return json_encode(["error" => $e->getMessage(), "info" => $peso_standar]);
         }
+    }
+
+    function convertirAPesoEnGramos($peso, $medida) {
+        // Validar que el peso sea numérico y mayor a cero
+        if (!is_numeric($peso) || $peso <= 0) {
+            return 0;
+        }
+
+        if ($medida == "" || $medida == null) {
+            return 0;
+        }
+
+        $listaMedidasPeso = array(
+            array("tipo" => "KG", "factor" => 1000),    // 1 kg = 1000 g
+            array("tipo" => "GR", "factor" => 1),       // 1 g = 1 g
+            array("tipo" => "ML", "factor" => 1),       // Suponemos que 1 ml de agua pesa 1 g (aproximadamente)
+            array("tipo" => "LT", "factor" => 1000),    // Suponemos que 1 litro de agua pesa 1000 g
+        );
+    
+        $factor = null;
+    
+        // Buscar el factor de conversión para la medida proporcionada
+        foreach ($listaMedidasPeso as $medidaPeso) {
+            if ($medidaPeso["tipo"] === $medida) {
+                $factor = $medidaPeso["factor"];
+                break;
+            }
+        }
+    
+        // Si la medida no está en la lista, se considera que ya está en gramos
+        if ($factor === null) {
+            return $peso;
+        }
+    
+        // Realizar la conversión a gramos
+        return $peso * $factor;
     }
 
 }

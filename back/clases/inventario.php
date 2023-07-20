@@ -122,10 +122,12 @@ class Inventario extends Conectar{
 
                     //obtener peso y unidad de medida
                     $patron = "/(\d+(?:\.\d+)?)-(\d+(?:\.\d+)?) ([A-Z]+)$/i";
+                    $cantidadUnidadesPatron = "/(\d+)\s+UN\s+/i"; // Expresión regular para capturar la cantidad de unidades
 
                     $promedio = 0;
                     $unidadMedida = "";
                     $rango="0";
+                    $cantidadUnidades = 1;
                     $medidas = array('KG','GR','ML','LT');
 
                     // Realizar la búsqueda del patrón en el texto
@@ -140,10 +142,19 @@ class Inventario extends Conectar{
                         }
                     }
 
+                    // Realizar la búsqueda de la cantidad de unidades en el texto
+                    if (preg_match($cantidadUnidadesPatron, $producto['Descripción'], $cantidadMatches)) {
+                        if (isset($cantidadMatches[1])) {
+                            $cantidadUnidades = intval($cantidadMatches[1]);
+                            $promedio = $cantidadUnidades * $promedio;
+                        }
+                    }
+
+                    $peso_standar = self::convertirAPesoEnGramos($promedio,$unidadMedida);
                     
                     // Insertar el producto
-                    $queryInsertar = "INSERT INTO producto (producto_categoria_id, producto_codigo, producto_descripcion, producto_medida, producto_peso, producto_precio, producto_rango_peso, producto_sku, producto_update, producto_estado) 
-                    VALUES (:producto_categoria_id, :producto_codigo, :producto_descripcion, :producto_medida, :producto_peso, :producto_precio, :producto_rango_peso, :producto_sku, NOW(), 1)";
+                    $queryInsertar = "INSERT INTO producto (producto_categoria_id, producto_codigo, producto_descripcion, producto_medida, producto_peso,producto_peso_estandar, producto_precio, producto_rango_peso, producto_sku, producto_update, producto_estado) 
+                    VALUES (:producto_categoria_id, :producto_codigo, :producto_descripcion, :producto_medida, :producto_peso,:producto_peso_estandar, :producto_precio, :producto_rango_peso, :producto_sku, NOW(), 1)";
                     $queryInsertar = $conectar->prepare($queryInsertar);
                     $queryInsertar->execute([
                     ':producto_categoria_id' => 26,
@@ -151,6 +162,7 @@ class Inventario extends Conectar{
                     ':producto_descripcion' => $producto['Descripción'],
                     ':producto_medida' => $unidadMedida,
                     ':producto_peso' => $promedio,
+                    ':producto_peso_estandar' => $peso_standar,
                     ':producto_rango_peso' => $rango,
                     ':producto_precio' => $producto['Precio Promedio'],
                     ':producto_sku' => $producto['Descripción']
@@ -248,6 +260,42 @@ class Inventario extends Conectar{
         }
 
        
+    }
+
+    function convertirAPesoEnGramos($peso, $medida) {
+        // Validar que el peso sea numérico y mayor a cero
+        if (!is_numeric($peso) || $peso <= 0) {
+            return 0;
+        }
+
+        if ($medida == "" || $medida == null) {
+            return 0;
+        }
+
+        $listaMedidasPeso = array(
+            array("tipo" => "KG", "factor" => 1000),    // 1 kg = 1000 g
+            array("tipo" => "GR", "factor" => 1),       // 1 g = 1 g
+            array("tipo" => "ML", "factor" => 1),       // Suponemos que 1 ml de agua pesa 1 g (aproximadamente)
+            array("tipo" => "LT", "factor" => 1000),    // Suponemos que 1 litro de agua pesa 1000 g
+        );
+    
+        $factor = null;
+    
+        // Buscar el factor de conversión para la medida proporcionada
+        foreach ($listaMedidasPeso as $medidaPeso) {
+            if ($medidaPeso["tipo"] === $medida) {
+                $factor = $medidaPeso["factor"];
+                break;
+            }
+        }
+    
+        // Si la medida no está en la lista, se considera que ya está en gramos
+        if ($factor === null) {
+            return $peso;
+        }
+    
+        // Realizar la conversión a gramos
+        return $peso * $factor;
     }
 
 }

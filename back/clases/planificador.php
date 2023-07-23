@@ -227,10 +227,49 @@ class Planificador extends Conectar{
 
     }
 
+    public function mostrar_orden($data){
+        try {
+            $conectar = parent::db();
+            $query = "SELECT * FROM orden WHERE orden_codigo = {$data}";
+
+            $query = $conectar->prepare($query);
+            $query->execute();
+            $result = $query->fetchAll(PDO::FETCH_ASSOC);
+            if ($result == null || !$result) {
+                $result = array();
+            }
+            return json_encode($result);
+        } catch(Exception $e){
+            return json_encode(["error" => $e->getMessage()]);
+        }
+    }
+
+    public function listar_ordenes(){
+        try {
+            $conectar = parent::db();
+            $query = "SELECT DISTINCT(orden_codigo) orden_codigo, orden_fecha_emision FROM orden WHERE orden_estado = 1 ORDER BY orden_codigo DESC";
+
+            $query = $conectar->prepare($query);
+            $query->execute();
+            $result = $query->fetchAll(PDO::FETCH_ASSOC);
+            if ($result == null || !$result) {
+                $result = array();
+            }
+            return json_encode($result);
+        } catch(Exception $e){
+            return json_encode(["error" => $e->getMessage()]);
+        }
+    }
+
     public function rechazar_orden(){
         try {
 
             $conectar = parent::db();
+
+            $query = "DELETE FROM orden WHERE orden_estado = 0";
+            $query = $conectar->prepare($query);
+            $query->execute();
+
             $query="UPDATE inventario SET inventario_stock_temporal = inventario_stock";
             $query = $conectar->prepare($query);
             $query->execute();

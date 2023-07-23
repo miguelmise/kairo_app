@@ -30,6 +30,29 @@ try {
             $lista = $planificador->listarExistencias();
             echo $lista;
         }
+
+        if ($parametro === 'ordenes') {
+            $lista = $planificador->listar_ordenes();
+            echo $lista;
+        }
+
+        if (is_numeric($parametro)) {
+            $lista = $planificador->mostrar_orden($parametro);
+            echo $lista;
+        }
+    }
+
+    if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
+
+        if(isset($_REQUEST['parametro'])){
+            $respuesta = $planificador->aceptar_orden($_REQUEST['parametro']);
+            echo $respuesta;
+        }
+
+        if(!isset($_REQUEST['parametro'])){
+            $respuesta = $planificador->rechazar_orden();
+            echo $respuesta;
+        }
     }
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {

@@ -1,6 +1,107 @@
 <?php
 
+error_reporting(E_ERROR);
+ini_set("memory_limit","-1");
+
 class Planificador extends Conectar{
+
+    public function generarOrden($data){
+        try {
+
+            
+
+            $conectar = parent::db();
+            $conectar->beginTransaction();
+
+            $query_orden = "SELECT MAX(orden_codigo) as ultimo_codigo FROM orden";
+            $query_orden = $conectar->prepare($query_orden);
+            $query_orden->execute();
+            $resultado = $query_orden->fetch(PDO::FETCH_ASSOC);
+            $codigo_orden = $resultado['ultimo_codigo']+1;
+
+            foreach ($data as $beneficiado) {
+                
+                $orden_beneficiado_id = $beneficiado['beneficiado_id'];
+                $orden_beneficiado_nombre = $beneficiado['beneficiado_nombre'];        
+
+                //recorro las categorias requeridas
+                foreach($beneficiado['productos'] as $requerido){
+
+                    $categoria_id = $requerido['cat_pro_id'];
+                    $cantidad_requerida = $requerido['suma'];       
+
+                    //obtener listado producto inventario
+                    $query = "SELECT c.cat_pro_id, c.cat_pro_nombre,p.producto_id,p.producto_precio,p.producto_peso_estandar,p.producto_codigo, i.*
+                    FROM categoria_producto c
+                    LEFT JOIN producto p ON p.producto_categoria_id = c.cat_pro_id
+                    LEFT JOIN inventario i ON i.inventario_codigo = p.producto_codigo
+                    WHERE cat_pro_id = {$requerido['cat_pro_id']} AND cat_pro_estado = 1 AND p.producto_estado = 1 AND i.inventario_stock > 0 AND p.producto_peso_estandar > 0
+                    ORDER BY i.inventario_caducidad ASC, p.producto_peso_estandar ASC";
+
+                    $query = $conectar->prepare($query);
+                    $query->execute();
+                    $result = $query->fetchAll(PDO::FETCH_ASSOC);
+                    if ($result == null || !$result) {
+                        $result = array();
+                    }
+
+                    foreach ($result as $producto) {
+                        $stock_entregar = 0;
+                        $stock_temporal = $producto['inventario_stock_temporal'];
+
+                        while ($stock_temporal > 0) {
+                            if($cantidad_requerida > 0){
+                                $stock_temporal--;
+                                $cantidad_requerida-=$producto['producto_peso_estandar'];
+                                $stock_entregar++;
+                            }else{
+                                break;
+                            }
+                        }
+
+                        if($stock_entregar > 0){
+                            //actualizar inventario
+                            $query_update = "UPDATE inventario SET inventario_stock_temporal = {$stock_temporal}, inventario_update = NOW() 
+                            WHERE inventario_id = {$producto['inventario_id']};";
+
+                            $query_update = $conectar->prepare($query_update);
+                            $query_update->execute();
+
+                            $query_update = "INSERT INTO orden (orden_codigo, orden_beneficiado_id, orden_beneficiado_nombre, orden_producto_ubicacion, orden_producto_caducidad, 
+                            orden_producto_codigo, orden_producto_descripcion, orden_proveedor_nombre, orden_producto_precio, orden_producto_cantidad, orden_fecha_emision, orden_estado)
+                            VALUES('{$codigo_orden}','{$orden_beneficiado_id}','{$orden_beneficiado_nombre}','{$producto['inventario_ubicacion']}','{$producto['inventario_caducidad']}',
+                            '{$producto['producto_codigo']}','{$producto['inventario_descripcion']}','{$producto['inventario_proveedor']}',{$producto['inventario_precio_promedio']},
+                            {$stock_entregar},NOW(),'0');";
+
+                            
+
+                            $query_update = $conectar->prepare($query_update);
+                            $query_update->execute();
+                        }
+                    }
+
+                    //llenar informe
+                    $cantidad_requerida_kg = $cantidad_requerida / 1000;
+                    $cantidad_entregada_kg = ($requerido['suma'] -$cantidad_requerida) / 1000;
+
+                    if($cantidad_requerida > 0){
+                        $salida['informe'][$orden_beneficiado_nombre][$requerido['cat_pro_nombre']] = 'Asignado: '.$cantidad_entregada_kg.'KG , Falta: '.$cantidad_requerida_kg.' KG para la cantidad requerida';
+                    }else{
+                        $salida['informe'][$orden_beneficiado_nombre][$requerido['cat_pro_nombre']] = 'Asignado:'.$cantidad_entregada_kg.' KG';
+                    }
+                }
+            }
+
+            $salida['orden'] = $codigo_orden;
+
+            $conectar->commit();
+   
+            return json_encode($salida);
+        } catch(Exception $e){
+            $conectar->rollback();
+            return json_encode(["error" => $e->getMessage()]);
+        }
+    }
 
     public function listar_productos_incompletos(){
 
@@ -96,6 +197,46 @@ class Planificador extends Conectar{
 
             }
 
+            return json_encode($result);
+
+        } catch(Exception $e){
+            return json_encode(["error" => $e->getMessage()]);
+        }
+    }
+
+    public function aceptar_orden($data){
+
+        try {
+
+            $conectar = parent::db();
+            $query="UPDATE inventario SET inventario_stock = inventario_stock_temporal";
+            $query = $conectar->prepare($query);
+            $query->execute();
+
+            $query="UPDATE orden SET orden_estado = 1 WHERE orden_codigo = {$data}";
+            $query = $conectar->prepare($query);
+            $query->execute();
+            
+            $result = ["mensaje" => "Orden Confirmada."];
+            
+            return json_encode($result);
+
+        } catch(Exception $e){
+            return json_encode(["error" => $e->getMessage()]);
+        }
+
+    }
+
+    public function rechazar_orden(){
+        try {
+
+            $conectar = parent::db();
+            $query="UPDATE inventario SET inventario_stock_temporal = inventario_stock";
+            $query = $conectar->prepare($query);
+            $query->execute();
+            
+            $result = ["mensaje" => "Se descartó las órdenes no confirmadas."];
+            
             return json_encode($result);
 
         } catch(Exception $e){

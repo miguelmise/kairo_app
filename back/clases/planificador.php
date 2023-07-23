@@ -73,10 +73,12 @@ class Planificador extends Conectar{
                             '{$producto['producto_codigo']}','{$producto['inventario_descripcion']}','{$producto['inventario_proveedor']}',{$producto['inventario_precio_promedio']},
                             {$stock_entregar},NOW(),'0');";
 
-                            
-
                             $query_update = $conectar->prepare($query_update);
                             $query_update->execute();
+
+                            $qb = "UPDATE beneficiado SET beneficiado_ultima_entrega = NOW() WHERE beneficiado_id = {$orden_beneficiado_id}";
+                            $qb = $conectar->prepare($qb);
+                            $qb->execute();
                         }
                     }
 

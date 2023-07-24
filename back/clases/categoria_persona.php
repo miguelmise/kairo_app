@@ -5,7 +5,7 @@ class Categoria_Persona extends Conectar{
     public function listar_categoria_persona(){
         try {
             $conectar = parent::db();
-            $query = "SELECT * FROM categoria_persona";
+            $query = "SELECT * FROM categoria_persona ORDER BY categoria_persona_nombre";
             $query = $conectar->prepare($query);
             $query->execute();
             $result = $query->fetchAll(PDO::FETCH_ASSOC);

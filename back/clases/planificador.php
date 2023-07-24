@@ -128,7 +128,7 @@ class Planificador extends Conectar{
     public function listarExistencias(){
         try {
             $conectar = parent::db();
-            $query = "SELECT c.cat_pro_id, c.cat_pro_nombre, SUM((COALESCE(p.producto_peso_estandar, 0) * COALESCE(s.stock, 0))) AS peso
+            $query = "SELECT c.cat_pro_id, c.cat_pro_nombre, SUM((COALESCE(p.producto_peso_estandar, 0) * COALESCE(s.stock, 0))) AS suma
             FROM categoria_producto C
             LEFT JOIN producto p ON p.producto_categoria_id = c.cat_pro_id
             LEFT JOIN(SELECT inventario_codigo, SUM(inventario_stock) as stock FROM inventario GROUP BY inventario_codigo) s ON p.producto_codigo = s.inventario_codigo

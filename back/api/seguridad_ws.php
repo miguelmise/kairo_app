@@ -20,7 +20,7 @@ try {
         if(isset($_REQUEST['token'])){
             $requestData = $_REQUEST['token'];
         }else{
-            echo json_encode("Sin parametros");
+            echo json_encode(array('error' => 'Sin Parametros.'));
             die();
         }
 

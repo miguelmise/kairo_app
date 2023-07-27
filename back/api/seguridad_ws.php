@@ -13,25 +13,39 @@ try {
         $accesos[4] = array('Inicio','Ordenes');
         $accesos[5] = array('Inicio');
 
-        $requestData = json_decode(file_get_contents('php://input'), true);
+        //$requestData = json_decode(file_get_contents('php://input'), true);
 
-        $decoded_token = base64_decode($requestData['token']);
+        
+        
+        if(isset($_REQUEST['token'])){
+            $requestData = $_REQUEST['token'];
+        }else{
+            echo json_encode("Sin parametros");
+            die();
+        }
 
-        if (verifyToken($decoded_token)) {
+        //$decoded_token = base64_decode($requestData['token']);
+        $data_token = base64_decode($requestData);
+
+        $decodedToken = json_decode($data_token, true);
+
+        
+
+        if (isset($decodedToken['exp']) && $decodedToken['exp'] >= time()) {
             $resultado['mensaje'] = '¡Bienvenido!.';
             $resultado['acceso'] = 1;
-            // Aumentar el tiempo de expiración en 3600 segundos
-            $decodedToken = json_decode($decoded_token, true);
             $resultado['paginas'] = $accesos[$decodedToken['rol']];
+            // Aumentar el tiempo de expiración en 3600 segundos
             $decodedToken['exp'] += 3600;
-            // Codificar nuevamente el token modificado
             $resultado['token'] = base64_encode(json_encode($decodedToken));
-        } else {
+        }else{
             $resultado['mensaje'] = 'Sesión inválida o expirada.';
             $resultado['acceso'] = 0;
         }
-        
+
+        //print_r($decodedToken);
         echo json_encode($resultado);
+
     }
 
 } catch (Exception $e) {
@@ -40,17 +54,5 @@ try {
     echo json_encode($response);
     exit();
 }
-
-function verifyToken($token) {
-    // Verificar si el token es válido (esto depende de tu implementación)
-    $decodedToken = json_decode($token, true);
-
-    if ($decodedToken && isset($decodedToken['exp']) && $decodedToken['exp'] >= time()) {
-        return true;
-    }
-
-    return false;
-}
-
 
 ?>

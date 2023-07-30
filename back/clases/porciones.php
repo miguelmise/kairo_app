@@ -96,6 +96,28 @@ class Porciones extends Conectar{
         }
     }
 
+    public function eliminar($id){
+        try {
+            // Validación de datos
+            if(!is_numeric($id)){return json_encode(["error" => "id invalido"]);}
+
+            $conectar = parent::db();
+            $query="DELETE FROM porciones WHERE porciones_id = {$id}";
+            $query = $conectar->prepare($query);
+            $query->execute();
+            if ($query->rowCount() > 0) {
+                $result = ["mensaje" => "Eliminado exitosamente."];
+            } else {
+                $result = ["mensaje" => "No hubo cambios."];
+            }
+
+            return json_encode($result);
+
+        } catch(Exception $e){
+            return json_encode(["error" => $e->getMessage()]);
+        }
+    }
+
 }
 
 ?>

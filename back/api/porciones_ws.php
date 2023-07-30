@@ -41,6 +41,19 @@ try {
         echo $porcion_update;
     }
 
+    if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
+        
+        if (!isset($_REQUEST['id'])) {
+            http_response_code(402);
+            echo json_encode(array('error' => 'No se recibio parámetros.'));
+            exit();
+        }
+        $porcion_delete = $porcion->eliminar($_REQUEST['id'],$_REQUEST['cantidad']);
+        echo $porcion_delete;
+    }
+
+    
+
 } catch (Exception $e) {
     http_response_code(500); // Internal Server Error
     $response = array('error' => 'Se produjo un error en el servidor.'.$e);

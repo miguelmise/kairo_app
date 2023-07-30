@@ -33,7 +33,7 @@ try {
                 $resultado['username'] = $user_data['user_nick'];
                 $resultado['rol'] = $rol;
                 $resultado['nombres'] = $user_data['user_nombres'];
-                $resultado['exp'] = time() + 3600;
+                $resultado['exp'] = time() + 6600;
             }else{
                 $resultado = array( "error" => "Usuario se encuentra inactivado");
             }

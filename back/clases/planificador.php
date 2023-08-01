@@ -196,6 +196,20 @@ class Planificador extends Conectar{
                     $response = array();
                 }
 
+                //quincenal
+                if($item['beneficiado_periodo'] == 15){
+                    foreach($response as &$detalle){
+                        $detalle['suma'] = $detalle['suma'] * 2;
+                    }
+                }
+
+                //mensual
+                if($item['beneficiado_periodo'] == 30){
+                    foreach($response as &$detalle){
+                        $detalle['suma'] = $detalle['suma'] * 4;
+                    }
+                }
+
                 $item['productos'] = $response;
 
             }

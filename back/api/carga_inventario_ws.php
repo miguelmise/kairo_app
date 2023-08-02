@@ -7,8 +7,10 @@ try {
 
     if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         
-        $inventario_list = $inventario->listarInventario();
-        echo $inventario_list;
+        
+            $inventario_list = $inventario->listarInventario();
+            echo $inventario_list;
+        
     }
 
     if ($_SERVER['REQUEST_METHOD'] == 'PUT') {

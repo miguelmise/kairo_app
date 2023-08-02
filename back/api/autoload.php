@@ -15,6 +15,7 @@ require_once ("../clases/categoria_producto.php");
 require_once ("../clases/porciones.php");
 require_once ("../clases/inventario.php");
 require_once ("../clases/planificador.php");
+require_once ("../clases/reportes.php");
 
 
 header('Access-Control-Allow-Origin: *');

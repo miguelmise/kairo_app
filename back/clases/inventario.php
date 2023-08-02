@@ -262,6 +262,67 @@ class Inventario extends Conectar{
        
     }
 
+    function devolverProducto($orden){
+
+        try {
+            $respuesta = array("mensaje"=>"");
+            $conectar = parent::db();
+            $conectar->beginTransaction();
+
+            //consultar categoria producto
+            $query = "SELECT * FROM inventario WHERE inventario_codigo = {$orden['orden_producto_codigo']} AND inventario_descripcion = '{$orden['orden_producto_descripcion']}' LIMIT 1";
+            $query = $conectar->prepare($query);
+            $query->execute();
+            $producto = $query->fetch(PDO::FETCH_ASSOC);
+
+            $costo_total = $orden['orden_producto_precio'] * $orden['orden_producto_cantidad'];
+
+            $query_i = "INSERT INTO inventario (inventario_codigo,inventario_ubicacion,inventario_caducidad,inventario_descripcion,inventario_lote,
+                inventario_proveedor,inventario_um,inventario_stock,inventario_stock_temporal,inventario_precio_promedio,inventario_costo_total,inventario_update) 
+                VALUES(:inventario_codigo,:inventario_ubicacion,:inventario_caducidad,:inventario_descripcion,:inventario_lote,
+                :inventario_proveedor,:inventario_um,:inventario_stock,:inventario_stock_temporal,:inventario_precio_promedio,:inventario_costo_total,NOW())";
+
+                $query_i = $conectar->prepare($query_i);
+                $query_i->execute([
+                    ':inventario_codigo' => $producto['inventario_codigo'],
+                    ':inventario_ubicacion' => $orden['orden_producto_ubicacion'],
+                    ':inventario_caducidad' => $producto['inventario_caducidad'],
+                    ':inventario_descripcion' => $producto['inventario_descripcion'],
+                    ':inventario_lote' => $producto['inventario_lote'],
+                    ':inventario_proveedor' => $producto['inventario_proveedor'],
+                    ':inventario_um' => $producto['inventario_um'],
+                    ':inventario_stock' => $orden['orden_producto_cantidad'],
+                    ':inventario_stock_temporal' => $orden['orden_producto_cantidad'],
+                    ':inventario_precio_promedio' => $orden['orden_producto_precio'],
+                    ':inventario_costo_total' => $costo_total
+                ]);
+
+                if ($query_i->rowCount() == 0) {
+                    throw new Exception("Error al devolver el producto al inventario");
+                }else{
+                    
+                    $query_update = "UPDATE orden SET orden_estado = 3 WHERE orden_id = {$orden['orden_id']}";
+                    $query_update = $conectar->prepare($query_update);
+                    $query_update->execute();
+
+                    if ($query_i->rowCount() == 0) {
+                        throw new Exception("Error al devolver el producto al inventario");
+                    }else{
+                        $respuesta['mensaje'] = "Producto reingresado al inventario correctamente.";
+                    }
+                }
+
+            $conectar->commit();
+
+            return json_encode($respuesta);
+
+        } catch(Exception $e){
+            $conectar->rollBack();
+            return json_encode(["error" => $e->getMessage()]);
+        }
+        
+    }
+
     function convertirAPesoEnGramos($peso, $medida) {
         // Validar que el peso sea numérico y mayor a cero
         if (!is_numeric($peso) || $peso <= 0) {

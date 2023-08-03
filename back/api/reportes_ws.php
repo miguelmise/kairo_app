@@ -9,6 +9,11 @@ try {
     $reporte = new Reporte();
 
     if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+
+        if(isset($_REQUEST['fecha_inicio']) && isset($_REQUEST['fecha_fin']) && $parametro == 'donantes'){
+            $respuesta = $reporte->reporte_donadores($_REQUEST['fecha_inicio'],$_REQUEST['fecha_fin']);
+            echo $respuesta;
+        }
         
         $respuesta = $reporte->obtenerOrdenes();
         echo $respuesta;

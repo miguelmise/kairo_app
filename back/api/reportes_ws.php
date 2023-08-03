@@ -8,6 +8,12 @@ try {
     $inventario = new Inventario();
     $reporte = new Reporte();
 
+    if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+        
+        $respuesta = $reporte->obtenerOrdenes();
+        echo $respuesta;
+    }
+    
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if(empty($requestData)){
             http_response_code(402);

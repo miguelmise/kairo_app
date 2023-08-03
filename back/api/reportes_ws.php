@@ -10,13 +10,26 @@ try {
 
     if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
-        if(isset($_REQUEST['fecha_inicio']) && isset($_REQUEST['fecha_fin']) && $parametro == 'donantes'){
-            $respuesta = $reporte->reporte_donadores($_REQUEST['fecha_inicio'],$_REQUEST['fecha_fin']);
+        $respuesta = $reporte->obtenerOrdenes();
+            echo $respuesta;
+    }
+
+    if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
+
+        if(!isset($requestData['reporte'])){
+            http_response_code(402);
+            echo json_encode(array('error' => 'No se recibio parámetros.'));
+            exit();
+        }
+
+        if($requestData['reporte'] == 'donantes'){
+            $respuesta = $reporte->reporte_donadores($requestData);
             echo $respuesta;
         }
-        
-        $respuesta = $reporte->obtenerOrdenes();
-        echo $respuesta;
+
+        if($requestData['reporte'] == 'ordenes'){
+            
+        }
     }
     
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {

@@ -28,7 +28,8 @@ try {
         }
 
         if($requestData['reporte'] == 'ordenes'){
-            
+            $respuesta = $reporte->buscar_ordenes($requestData);
+            echo $respuesta;
         }
     }
     

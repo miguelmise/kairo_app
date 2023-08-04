@@ -29,7 +29,7 @@ class Reporte extends Conectar{
             }
 
             if(!empty($data['proveedor'])){
-                $q_proveedor = " OR orden_proveedor_nombre LIKE '%{$data['proveedor']}%' ";
+                $q_proveedor = " orden_proveedor_nombre LIKE '%{$data['proveedor']}%' ";
             }else{
                 $q_proveedor = "";
             }
@@ -41,13 +41,22 @@ class Reporte extends Conectar{
             }
 
             if(!empty($data['beneficiario'])){
-                $q_beneficiado = " OR orden_beneficiado_nombre LIKE '%{$data['beneficiario']}%' ";
+                $q_beneficiado = " orden_beneficiado_nombre LIKE '%{$data['beneficiario']}%' ";
             }else{
                 $q_beneficiado = "";
             }
 
-            if(!empty($data['beneficiario']) || !empty($data['codigo_producto']) || !empty($data['proveedor'])){
-                $filtros = "AND ({$q_codigo} {$q_proveedor} {$q_beneficiado})";
+            if(!empty($data['beneficiario']) && !empty($data['codigo_producto']) && !empty($data['proveedor'])){
+                $filtros = "AND ({$q_codigo} OR {$q_proveedor} OR {$q_beneficiado})";
+            }elseif (!empty($data['codigo_producto']) && !empty($data['proveedor'])) {
+                $filtros = "AND ({$q_codigo} OR {$q_proveedor})";
+            }
+            elseif (!empty($data['beneficiario']) && !empty($data['codigo_producto'])) {
+                $filtros = " ({$q_codigo} OR {$q_beneficiado})";
+            }elseif (!empty($data['beneficiario']) && !empty($data['proveedor'])) {
+                $filtros = "AND ({$q_proveedor} OR {$q_beneficiado})";
+            }elseif (!empty($data['beneficiario']) || !empty($data['codigo_producto']) || !empty($data['proveedor'])) {
+                $filtros = " AND {$q_codigo} {$q_beneficiado} {$q_proveedor}";
             }else{
                 $filtros = "";
             }
@@ -76,14 +85,12 @@ class Reporte extends Conectar{
             $conectar = parent::db();
             $query = "SELECT 
             COALESCE(NULLIF(o.orden_proveedor_nombre, ''), 'SIN NOMBRE') AS orden_proveedor_nombre,
-            o.orden_producto_codigo,
-            o.orden_producto_descripcion,
             SUM((COALESCE(p.producto_peso_estandar, 0) * COALESCE(o.orden_producto_cantidad, 0))) AS peso,
             SUM((COALESCE(p.producto_precio, 0) * COALESCE(o.orden_producto_cantidad, 0))) AS precio
             FROM orden o
             LEFT JOIN producto p ON p.producto_codigo = o.orden_producto_codigo
             WHERE o.orden_estado = 1 AND o.orden_fecha_emision BETWEEN '{$data['fecha_inicio']} 00:00:01' AND '{$data['fecha_fin']} 23:59:59'
-            GROUP BY COALESCE(NULLIF(o.orden_proveedor_nombre, ''), 'SIN NOMBRE'), o.orden_producto_codigo, o.orden_producto_descripcion";
+            GROUP BY COALESCE(NULLIF(o.orden_proveedor_nombre, ''), 'SIN NOMBRE')";
 
             $query = $conectar->prepare($query);
             $query->execute();

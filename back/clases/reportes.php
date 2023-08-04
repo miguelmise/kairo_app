@@ -47,16 +47,16 @@ class Reporte extends Conectar{
             }
 
             if(!empty($data['beneficiario']) && !empty($data['codigo_producto']) && !empty($data['proveedor'])){
-                $filtros = "AND ({$q_codigo} OR {$q_proveedor} OR {$q_beneficiado})";
+                $filtros = "AND ({$q_codigo} AND {$q_proveedor} AND {$q_beneficiado})";
             }elseif (!empty($data['codigo_producto']) && !empty($data['proveedor'])) {
-                $filtros = "AND ({$q_codigo} OR {$q_proveedor})";
+                $filtros = "AND ({$q_codigo} AND {$q_proveedor})";
             }
             elseif (!empty($data['beneficiario']) && !empty($data['codigo_producto'])) {
-                $filtros = " ({$q_codigo} OR {$q_beneficiado})";
+                $filtros = " AND ({$q_codigo} AND {$q_beneficiado})";
             }elseif (!empty($data['beneficiario']) && !empty($data['proveedor'])) {
-                $filtros = "AND ({$q_proveedor} OR {$q_beneficiado})";
+                $filtros = "AND ({$q_proveedor} AND {$q_beneficiado})";
             }elseif (!empty($data['beneficiario']) || !empty($data['codigo_producto']) || !empty($data['proveedor'])) {
-                $filtros = " AND {$q_codigo} {$q_beneficiado} {$q_proveedor}";
+                $filtros = " AND ({$q_codigo}  {$q_beneficiado}  {$q_proveedor})";
             }else{
                 $filtros = "";
             }

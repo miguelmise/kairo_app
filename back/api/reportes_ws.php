@@ -31,6 +31,11 @@ try {
             $respuesta = $reporte->buscar_ordenes($requestData);
             echo $respuesta;
         }
+
+        if($requestData['reporte'] == 'beneficiados'){
+            $respuesta = $reporte->reporte_beneficiados($requestData);
+            echo $respuesta;
+        }
     }
     
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {

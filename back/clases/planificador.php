@@ -5,10 +5,10 @@ ini_set("memory_limit","-1");
 
 class Planificador extends Conectar{
 
+    
+
     public function generarOrden($data){
         try {
-
-            
 
             $conectar = parent::db();
             $conectar->beginTransaction();
@@ -107,10 +107,12 @@ class Planificador extends Conectar{
 
     public function listar_productos_incompletos(){
 
+        $id_sin_categoria = 26;
+
         try {
             $conectar = parent::db();
             $query = "SELECT producto_id, producto_codigo, producto_peso, producto_sku, producto_categoria_id FROM producto 
-                WHERE producto_categoria_id = 26 OR producto_peso = 0 AND producto_estado = 1";
+                WHERE producto_categoria_id = {$id_sin_categoria} OR producto_peso = 0 AND producto_estado = 1";
 
             $query = $conectar->prepare($query);
             $query->execute();

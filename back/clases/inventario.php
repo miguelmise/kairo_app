@@ -71,6 +71,8 @@ class Inventario extends Conectar{
 
     public function cargar_inventario($data){
 
+        $id_sin_categoria = 26;
+
         $conectar = parent::db();
 
         try {
@@ -157,7 +159,7 @@ class Inventario extends Conectar{
                     VALUES (:producto_categoria_id, :producto_codigo, :producto_descripcion, :producto_medida, :producto_peso,:producto_peso_estandar, :producto_precio, :producto_rango_peso, :producto_sku, NOW(), 1)";
                     $queryInsertar = $conectar->prepare($queryInsertar);
                     $queryInsertar->execute([
-                    ':producto_categoria_id' => 26,
+                    ':producto_categoria_id' => $id_sin_categoria,
                     ':producto_codigo' => $producto['Código'],
                     ':producto_descripcion' => $producto['Descripción'],
                     ':producto_medida' => $unidadMedida,

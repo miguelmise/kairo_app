@@ -62,10 +62,12 @@ class Reporte extends Conectar{
             }
             
             $conectar = parent::db();
-            $query = "SELECT orden_beneficiado_nombre, orden_producto_ubicacion, orden_producto_caducidad, 
+            $query = "SELECT orden_beneficiado_nombre, orden_producto_ubicacion, cat_pro_nombre, orden_producto_caducidad, 
             orden_producto_codigo, orden_producto_descripcion, orden_proveedor_nombre, orden_producto_precio, 
             orden_producto_cantidad, orden_fecha_emision
             FROM orden
+            LEFT JOIN producto ON producto_codigo = orden_producto_codigo
+            LEFT JOIN categoria_producto ON cat_pro_id = producto_categoria_id
             WHERE orden_estado = 1 {$filtros} {$q_fecha}";
 
             $query = $conectar->prepare($query);

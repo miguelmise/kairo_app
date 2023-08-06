@@ -5,7 +5,91 @@ ini_set("memory_limit","-1");
 
 class Planificador extends Conectar{
 
-    
+    public function repartir_producto($data){
+
+        try {
+            $conectar = parent::db();
+            $conectar->beginTransaction();
+
+            $query_orden = "SELECT MAX(orden_codigo) as ultimo_codigo FROM orden";
+            $query_orden = $conectar->prepare($query_orden);
+            $query_orden->execute();
+            $resultado = $query_orden->fetch(PDO::FETCH_ASSOC);
+            $codigo_orden = $resultado['ultimo_codigo']+1;
+
+            $codigo_producto = $data['codigo_producto'];
+            $cantidad_repartir = $data['cantidad_repartir'];
+
+            foreach ($data['beneficiados'] as $value) {
+
+                $cantidad = $cantidad_repartir;
+                $orden_beneficiado_id = $value['beneficiado_id'];
+                $orden_beneficiado_nombre = $value['beneficiado_nombre'];
+
+                $query = "SELECT c.cat_pro_id, c.cat_pro_nombre,p.producto_id,p.producto_precio,p.producto_peso_estandar,p.producto_codigo, i.*
+                FROM categoria_producto c
+                LEFT JOIN producto p ON p.producto_categoria_id = c.cat_pro_id
+                LEFT JOIN inventario i ON i.inventario_codigo = p.producto_codigo
+                WHERE inventario_codigo = {$codigo_producto} AND cat_pro_estado = 1 AND p.producto_estado = 1 AND i.inventario_stock > 0 AND p.producto_peso_estandar > 0
+                ORDER BY i.inventario_caducidad ASC, p.producto_peso_estandar ASC";
+
+                $query = $conectar->prepare($query);
+                $query->execute();
+                $result = $query->fetchAll(PDO::FETCH_ASSOC);
+                if ($result == null || !$result) {
+                    $result = array();
+                }
+
+                foreach ($result as $producto) {
+
+                    $stock_entregar = 0;
+                    $stock_temporal = $producto['inventario_stock_temporal'];
+
+                    while ($stock_temporal > 0) {
+                        if($cantidad > 0){
+                            $stock_temporal--;
+                            $cantidad--;
+                            $stock_entregar++;
+                        }else{
+                            break;
+                        }
+                    }
+
+                    if($stock_entregar > 0){
+                        //actualizar inventario
+                        $query_update = "UPDATE inventario SET inventario_stock_temporal = {$stock_temporal}, inventario_update = NOW() 
+                        WHERE inventario_id = {$producto['inventario_id']};";
+
+                        $query_update = $conectar->prepare($query_update);
+                        $query_update->execute();
+
+                        $query_update = "INSERT INTO orden (orden_codigo, orden_beneficiado_id, orden_beneficiado_nombre, orden_producto_ubicacion, orden_producto_caducidad, 
+                        orden_producto_codigo, orden_producto_descripcion, orden_proveedor_nombre, orden_producto_precio, orden_producto_cantidad, orden_fecha_emision, orden_estado)
+                        VALUES('{$codigo_orden}','{$orden_beneficiado_id}','{$orden_beneficiado_nombre}','{$producto['inventario_ubicacion']}','{$producto['inventario_caducidad']}',
+                        '{$producto['producto_codigo']}','{$producto['inventario_descripcion']}','{$producto['inventario_proveedor']}',{$producto['inventario_precio_promedio']},
+                        {$stock_entregar},NOW(),'0');";
+
+                        $query_update = $conectar->prepare($query_update);
+                        $query_update->execute();
+
+                       
+                    }
+
+                }
+
+            }
+
+            $salida['orden'] = $codigo_orden;
+            $conectar->commit();
+            return json_encode($salida);
+
+
+        } catch(Exception $e){
+            $conectar->rollback();
+            return json_encode(["error" => $e->getMessage()]);
+        }
+
+    }
 
     public function generarOrden($data){
         try {

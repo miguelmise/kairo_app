@@ -71,7 +71,7 @@ class Inventario extends Conectar{
 
     public function cargar_inventario($data){
 
-        $id_sin_categoria = 26;
+        $id_sin_categoria = 0;
 
         $conectar = parent::db();
 

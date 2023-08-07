@@ -191,7 +191,7 @@ class Planificador extends Conectar{
 
     public function listar_productos_incompletos(){
 
-        $id_sin_categoria = 26;
+        $id_sin_categoria = 0;
 
         try {
             $conectar = parent::db();

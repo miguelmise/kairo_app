@@ -26,7 +26,7 @@ class Producto extends Conectar{
             if(!isset($data['producto_id'])){return json_encode(["mensaje" => "Falta producto_id"]);}
             if(!isset($data['producto_codigo'])){return json_encode(["mensaje" => "Falta producto_codigo"]);}
             if(!isset($data['producto_estado'])){return json_encode(["mensaje" => "Falta producto_estado"]);}
-            if(!isset($data['producto_categoria_id']) || empty($data['producto_categoria_id'])){return json_encode(["mensaje" => "Falta producto_categoria_id"]);}
+            if(!isset($data['producto_categoria_id']) || !is_numeric($data['producto_categoria_id'])){return json_encode(["mensaje" => "Falta producto_categoria_id"]);}
             if(!isset($data['producto_descripcion'])){return json_encode(["mensaje" => "Falta producto_descripcion"]);}
             if(!isset($data['producto_peso'])){return json_encode(["mensaje" => "Falta producto_peso"]);}
             if(!isset($data['producto_precio'])){return json_encode(["mensaje" => "Falta producto_precio"]);}

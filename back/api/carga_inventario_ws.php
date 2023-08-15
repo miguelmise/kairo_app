@@ -38,7 +38,7 @@ try {
         foreach ($requestData as $item) {
             $newItem = array();
             foreach ($headers as $index => $header) {
-                $newItem[$header] = $item[$index];
+                $newItem[trim($header)] = $item[$index];
             }
 
             $dataExcel[] = $newItem;
